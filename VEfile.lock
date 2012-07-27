@@ -1,0 +1,6 @@
+subwrap (subwrap==0.0.1)
+nose (nose==1.1.2)
+ipython (ipython==0.13)
+mock (mock==1.0b1)
+testkit (testkit==0.1.2)
+  fudge (fudge==1.0.3)

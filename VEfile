@@ -1,0 +1,11 @@
+requirements:
+  - subwrap
+
+---
+profile: development
+
+requirements:
+  - nose
+  - ipython
+  - mock
+  - testkit

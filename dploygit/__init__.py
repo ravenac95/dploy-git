@@ -7,4 +7,4 @@ def pre_receive():
 
     Just run this inside a hook.
     """
-    PreReceiveHook.run(sys.stdin)
+    PreReceiveHook(sys.stdin)

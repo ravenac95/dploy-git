@@ -39,9 +39,12 @@ class HookOutputStream(object):
         self._output_stream.write('\n')
 
 
-def make_temp_file_path(suffix='', prefix=''):
+def make_temp_file_path(suffix='', prefix=None):
     """Simply creates a temporary file path"""
-    file_handle, file_path = tempfile.mkstemp(suffix=suffix, prefix=prefix)
+    options = dict(suffix=suffix)
+    if prefix:
+        options['prefix'] = prefix
+    file_handle, file_path = tempfile.mkstemp(**options)
     # Close the file
     os.close(file_handle)
     # Return the filename

@@ -56,7 +56,8 @@ class DployPreReceiveHook(GitoliteHook):
                 'broadcast-listen-uri')
 
         self._build_queue_client = BuildQueueClient(queue_uri)
-        self._broadcast_listener = BroadcastListener(broadcast_listen_uri)
+        self._broadcast_listener = BroadcastListener(broadcast_listen_uri,
+                self._output)
         self._receive_processor = PreReceiveProcessor(self._build_queue_client,
                 self._broadcast_listener, self._git_repository,
                 self._output)

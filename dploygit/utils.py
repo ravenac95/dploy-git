@@ -1,4 +1,6 @@
+import os
 import sys
+import tempfile
 
 PRINT_PREFIX = '\b' * 8
 MESSAGE_PREFIX = '------> '
@@ -28,3 +30,12 @@ class HookOutputStream(object):
     def new_line(self):
         self._on_new_line = True
         self._output_stream.write('\n')
+
+
+def make_temp_file_path(suffix='', prefix=''):
+    """Simply creates a temporary file path"""
+    file_handle, file_path = tempfile.mkstemp()
+    # Close the file
+    os.close(file_handle)
+    # Return the filename
+    return file_path

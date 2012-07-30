@@ -87,19 +87,22 @@ class TestGitUpdate(object):
     def setup(self):
         self.mock_repo = Mock()
 
-        self.mkdtemp_patch = patch('tempfile.mkdtemp', autospec=True)
-        self.mock_mkdtemp = self.mkdtemp_patch.start()
+        self.temp_file_path_patch = patch(
+                'dploygit.processors.make_temp_file_path',
+                autospec=True)
+        self.mock_temp_file_path = self.temp_file_path_patch.start()
 
         self.update = GitUpdate('abc', 'def', 'refs/heads/name',
                 self.mock_repo)
 
     def teardown(self):
-        self.mkdtemp_patch.stop()
+        self.temp_file_path_patch.stop()
 
     def test_export_to_file(self):
         update_file = self.update.export_to_file()
 
         # Assertions
-        mock_temp_dir = self.mock_mkdtemp.return_value
-        self.mock_repo.checkout_to_dir.assert_called_with(mock_temp_dir, commit='def')
-        assert update_file == mock_temp_dir
+        mock_temp_file = self.mock_temp_file_path.return_value
+        self.mock_repo.export_to_file.assert_called_with(
+                mock_temp_file, commit='def')
+        assert update_file == mock_temp_file

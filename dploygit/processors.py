@@ -1,4 +1,4 @@
-import tempfile
+from .utils import make_temp_file_path
 
 
 class GitUpdate(object):
@@ -43,9 +43,10 @@ class GitUpdate(object):
         return self._branch
 
     def export_to_file(self):
-        export_dir = tempfile.mkdtemp()
-        self.repository.checkout_to_dir(export_dir, commit=self.new)
-        return export_dir
+        file_suffix = '.%s-%s.tar.gz' % (self.repository.name, self.new)
+        file_path = make_temp_file_path(suffix=file_suffix)
+        self.repository.export_to_file(file_path, commit=self.new)
+        return file_path
 
 
 class PreReceiveProcessor(object):
@@ -72,5 +73,8 @@ class PreReceiveProcessor(object):
             # Wait and listen to the broadcaster using the received
             # listening channel
             self._broadcast_listener.listen_from_response(response)
+            # Remove the temp_directory
+
+
         else:
             output.line('Ignoring branch "%s"' % branch)

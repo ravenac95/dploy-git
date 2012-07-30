@@ -9,3 +9,11 @@ requirements:
   - ipython
   - mock
   - testkit
+
+environment:
+  GL_USER: user
+  GL_REPO: repo
+  GL_ADMIN_BASE: $PROJECT_DIR/tests/fixtures/fake-admin/
+  GL_REPO_BASE: repo_base
+  GL_LIBDIR: libdir
+  GL_LOGFILE: logfile

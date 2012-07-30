@@ -1,6 +1,5 @@
 import os
 import subwrap
-import tempfile
 
 
 class GitRepository(object):
@@ -30,4 +29,5 @@ class GitRepository(object):
         prefix_arg = '--prefix=%s/' % self.name
         output_arg = '--output=%s' % destination
         command = ['git', 'archive', prefix_arg, output_arg, commit]
+        # FIXME handle when the program returns an error
         subwrap.run(command)

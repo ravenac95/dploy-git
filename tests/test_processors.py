@@ -38,7 +38,7 @@ class TestPreReceiveProcessor(object):
         message = "GitUpdate.export_to_file not called"
         assert mock_git_update.export_to_file.called == True, message
         self.mock_build_queue_client.send_deploy_request.assert_called_with(
-                self.mock_git_repo.name,
+                self.mock_git_repo,
                 mock_git_update.export_to_file.return_value)
 
     def test_pre_receive_processor_process_not_master(self):

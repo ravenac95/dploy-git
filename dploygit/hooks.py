@@ -4,12 +4,9 @@ from . import constants
 from .utils import HookOutputStream
 from .env import GitoliteEnv
 from .processors import *
-
-
-class GitRepository(object):
-    @classmethod
-    def load(cls, name):
-        return cls()
+from .broadcastlistener import *
+from .queueclient import *
+from .repository import *
 
 
 class GitoliteHook(object):
@@ -32,17 +29,6 @@ class GitoliteHook(object):
         self._env = env
         self._config = config
         self._output = output
-
-
-class BroadcastListener(object):
-    def __init__(self, uri, output):
-        self._uri = uri
-        self._output = output
-
-
-class BuildQueueClient(object):
-    def __init__(self, uri):
-        self._uri = uri
 
 
 class DployPreReceiveHook(GitoliteHook):
@@ -73,11 +59,14 @@ class DployPreReceiveHook(GitoliteHook):
     def run(self, input_file):
         """Run the hook"""
         output = self._output
+        output.line()
         output.line('dploy ready to receive')
         try:
             for line in input_file:
                 self._receive_processor.process(line)
         except:
-            output.line('An error during the build hook')
+            output.line('An error during the build process')
+            output.line()
             sys.exit(1)
-        output.line('dploy completed successfully!')
+        output.line('dploy completed task successfully!')
+        output.line()

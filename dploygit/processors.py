@@ -69,7 +69,7 @@ class PreReceiveProcessor(object):
             # Queue the DeployRequest
             # Should receive a listening channel in the response
             response = self._build_queue_client.send_deploy_request(
-                    self._git_repository.name, update_file)
+                    self._git_repository, update_file)
             # Wait and listen to the broadcaster using the received
             # listening channel
             self._broadcast_listener.listen_from_response(response)

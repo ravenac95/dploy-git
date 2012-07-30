@@ -15,14 +15,21 @@ class HookOutputStream(object):
         self._on_new_line = True
         self._prefix = prefix
 
-    def line(self, message):
-        self.write(message)
+    def line(self, message=''):
+        use_prefix = True
+        if not message:
+            # If it's an empty line don't include the prefix
+            use_prefix = False
+        self.write(message, use_prefix=use_prefix)
         self.new_line()
 
-    def write(self, string):
+    def write(self, string, use_prefix=True):
         if self._on_new_line:
             self._output_stream.write(PRINT_PREFIX)
-            self._output_stream.write(self._prefix)
+            prefix = self._prefix
+            if not use_prefix:
+                prefix = SPACE_PREFIX
+            self._output_stream.write(prefix)
         string = string.replace('\n', NEWLINE_REPLACE)
         self._output_stream.write(string)
         self._on_new_line = False
@@ -34,7 +41,7 @@ class HookOutputStream(object):
 
 def make_temp_file_path(suffix='', prefix=''):
     """Simply creates a temporary file path"""
-    file_handle, file_path = tempfile.mkstemp()
+    file_handle, file_path = tempfile.mkstemp(suffix=suffix, prefix=prefix)
     # Close the file
     os.close(file_handle)
     # Return the filename

@@ -1,5 +1,51 @@
+import tempfile
+
+
 class GitUpdate(object):
-    pass
+    @classmethod
+    def from_line(cls, line, repository):
+        stripped_line = line.strip()
+        args = stripped_line.split(' ')
+        args.append(repository)
+        return cls(*args)
+
+    def __init__(self, old, new, ref_name, repository):
+        self._old = old
+        self._new = new
+        self._ref_name = ref_name
+        self._repository = repository
+        self._branch = None
+
+    @property
+    def old(self):
+        return self._old
+
+    @property
+    def new(self):
+        return self._new
+
+    @property
+    def ref_name(self):
+        return self._ref_name
+
+    @property
+    def repository(self):
+        return self._repository
+
+    @property
+    def branch(self):
+        """Returns a simple branch name"""
+        branch = self._branch
+        if not branch:
+            split_ref_name = self._ref_name.split('/')
+            branch = split_ref_name[-1]
+            self._branch = branch
+        return self._branch
+
+    def export_to_file(self):
+        export_dir = tempfile.mkdtemp()
+        self.repository.checkout_to_dir(export_dir, commit=self.new)
+        return export_dir
 
 
 class PreReceiveProcessor(object):
@@ -13,7 +59,7 @@ class PreReceiveProcessor(object):
     def process(self, line):
         output = self._output
 
-        update = GitUpdate.from_line(line)
+        update = GitUpdate.from_line(line, self._git_repository)
         branch = update.branch
         if branch == 'master':
             output.line('Receiving new code from master branch')

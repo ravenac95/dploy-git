@@ -1,9 +1,7 @@
-from . import constants
+import sys
 from ConfigParser import ConfigParser
-
-
-class GitReceiveUpdate(object):
-    pass
+from . import constants
+from .utils import git_print
 
 
 class GitRepository(object):
@@ -69,5 +67,11 @@ class PreReceiveHook(GitoliteHook):
 
     def run(self, input_file):
         """Run the hook"""
-        for line in input_file:
-            self._receive_processor.process(line)
+        git_print()
+        try:
+            for line in input_file:
+                self._receive_processor.process(line)
+        except:
+            git_print('An error during the pre-receive hook')
+            sys.exit(1)
+        git_print('Tasks completed successfully!')

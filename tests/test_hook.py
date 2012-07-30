@@ -2,12 +2,6 @@ from mock import Mock, MagicMock, patch, call
 from dploygit.hooks import *
 
 
-def mock_update(branch):
-    mock_obj = Mock(name='GitReceiveUpdate:%s' % branch)
-    mock_obj.branch = branch
-    return mock_obj
-
-
 class FakeGitoliteHook(GitoliteHook):
     def __init__(self, *args, **kwargs):
         super(FakeGitoliteHook, self).__init__(*args, **kwargs)

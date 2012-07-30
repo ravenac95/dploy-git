@@ -1,5 +1,5 @@
 import os
-import constants
+from . import constants
 
 
 class GitoliteEnv(object):

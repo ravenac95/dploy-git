@@ -37,7 +37,7 @@ class GitUpdate(object):
         """Returns a simple branch name"""
         branch = self._branch
         if not branch:
-            split_ref_name = self._ref_name.split('/')
+            split_ref_name = self.ref_name.split('/')
             branch = split_ref_name[-1]
             self._branch = branch
         return self._branch

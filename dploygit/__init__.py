@@ -1,5 +1,5 @@
 import sys
-from .hooks import PreReceiveHook
+from .hooks import DployPreReceiveHook
 
 
 def pre_receive():
@@ -7,4 +7,4 @@ def pre_receive():
 
     Just run this inside a hook.
     """
-    PreReceiveHook(sys.stdin)
+    DployPreReceiveHook(sys.stdin)

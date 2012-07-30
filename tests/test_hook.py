@@ -37,7 +37,7 @@ def test_fake_hook(mock_repo_cls, mock_env_cls, mock_config_cls):
     mock_config.read.assert_called_with(mock_env.custom_config_path)
 
 
-class TestPreReceiveHook(object):
+class TestDployPreReceiveHook(object):
     def setup(self):
         self.mock_repo = Mock()
         self.mock_env = Mock()
@@ -45,9 +45,11 @@ class TestPreReceiveHook(object):
         self.mock_build_queue_client = Mock()
         self.mock_broadcast_listener = Mock()
         self.mock_receive_processor = Mock()
+        self.mock_output_stream = Mock()
 
-        self.hook = PreReceiveHook(self.mock_repo, self.mock_env,
-                self.mock_config, self.mock_build_queue_client,
+        self.hook = DployPreReceiveHook(self.mock_repo, self.mock_env,
+                self.mock_config, self.mock_output_stream,
+                self.mock_build_queue_client,
                 self.mock_broadcast_listener, self.mock_receive_processor)
 
     def test_run(self):

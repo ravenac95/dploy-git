@@ -28,11 +28,3 @@ class HookOutputStream(object):
     def new_line(self):
         self._on_new_line = True
         self._output_stream.write('\n')
-
-
-def git_print(message=''):
-    """A shortcut to a simple line print"""
-    prefix = True
-    if not message:
-        prefix = False
-    HookOutputStream.line(message, prefix=prefix)

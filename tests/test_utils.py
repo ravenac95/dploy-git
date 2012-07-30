@@ -26,8 +26,9 @@ class TestMakeTempFilePath(object):
         temp_path = make_temp_file_path()
         assert temp_path == self.mock_temp_file_path
 
-    def test_make_temp_file_path_with_suffix_and_prefix(self):
-        make_temp_file_path(suffix='s', prefix='p')
+    def test_make_temp_file_path_with_options(self):
+        make_temp_file_path(suffix='s', prefix='p', dir='d', text=True)
 
-        self.mock_mkstemp.assert_called_with(suffix='s', prefix='p')
+        self.mock_mkstemp.assert_called_with(suffix='s', prefix='p',
+                dir='d', text=True)
 

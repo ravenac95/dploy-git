@@ -2,18 +2,14 @@ import sys
 from ConfigParser import ConfigParser
 from . import constants
 from .utils import HookOutputStream
+from .env import GitoliteEnv
+from .processors import *
 
 
 class GitRepository(object):
-    pass
-
-
-class GitoliteEnv(object):
-    pass
-
-
-class PreReceiveProcessor(object):
-    pass
+    @classmethod
+    def load(cls, name):
+        return cls()
 
 
 class GitoliteHook(object):
@@ -39,11 +35,14 @@ class GitoliteHook(object):
 
 
 class BroadcastListener(object):
-    pass
+    def __init__(self, uri, output):
+        self._uri = uri
+        self._output = output
 
 
 class BuildQueueClient(object):
-    pass
+    def __init__(self, uri):
+        self._uri = uri
 
 
 class DployPreReceiveHook(GitoliteHook):
@@ -62,8 +61,9 @@ class DployPreReceiveHook(GitoliteHook):
                 self._broadcast_listener, self._git_repository,
                 self._output)
 
-    def __init__(self, git_repository, env, config, output, build_queue_client,
-            broadcast_listener, receive_processor):
+    def __init__(self, git_repository, env, config, output,
+            build_queue_client=None,
+            broadcast_listener=None, receive_processor=None):
         super(DployPreReceiveHook, self).__init__(git_repository, env, config,
                 output)
         self._build_queue_client = build_queue_client
@@ -78,7 +78,6 @@ class DployPreReceiveHook(GitoliteHook):
             for line in input_file:
                 self._receive_processor.process(line)
         except:
-            raise
             output.line('An error during the build hook')
             sys.exit(1)
         output.line('dploy completed successfully!')

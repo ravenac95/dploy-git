@@ -52,13 +52,13 @@ class TestDployPreReceiveHook(object):
                 self.mock_build_queue_client,
                 self.mock_broadcast_listener, self.mock_receive_processor)
 
-    def test_run(self):
+    def test_run_build(self):
         # Setup mocks
         mock_input_file = MagicMock()
         mock_input_file.__iter__.return_value = iter(['a', 'b', 'c'])
 
         # Run Test
-        self.hook.run(mock_input_file)
+        self.hook.run_build(mock_input_file)
 
         # Assertions
         expected_calls = [
@@ -67,3 +67,47 @@ class TestDployPreReceiveHook(object):
             call('c'),
         ]
         self.mock_receive_processor.process.assert_has_calls(expected_calls)
+
+    def test_run(self):
+        # Setup mocks
+        mock_input_file = Mock()
+        mock_repository_ok = self.hook.repository_ok = Mock()
+        mock_run = self.hook.run_build = Mock()
+        mock_repository_ok.return_value = True
+
+        # Run Test
+        self.hook.run(mock_input_file)
+
+        # Assertions
+        mock_run.assert_called_with(mock_input_file)
+
+    def test_run_ignore_repository(self):
+        # Setup mocks
+        mock_repository_ok = self.hook.repository_ok = Mock()
+        mock_run = self.hook.run_build = Mock()
+        mock_repository_ok.return_value = False
+
+        # Run Test
+        self.hook.run(None)
+
+        # Assertions
+        message = 'The run_build method should not be called'
+        assert mock_run.called == False, message
+
+    def test_repository_ok(self):
+        self.mock_config.get.return_value = "hello\nworld\nthere\n"
+
+        self.mock_repo.name = 'something'
+        assert self.hook.repository_ok() == True
+
+    def test_repository_ok_returns_false(self):
+        self.mock_config.get.return_value = "hello\nworld\nthere\n"
+
+        self.mock_repo.name = 'hello'
+        assert self.hook.repository_ok() == False
+
+        self.mock_repo.name = 'world'
+        assert self.hook.repository_ok() == False
+
+        self.mock_repo.name = 'there'
+        assert self.hook.repository_ok() == False

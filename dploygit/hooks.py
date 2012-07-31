@@ -60,13 +60,29 @@ class DployPreReceiveHook(GitoliteHook):
         """Run the hook"""
         output = self._output
         output.line()
-        output.line('dploy ready to receive')
+        if self.repository_ok():
+            self.run_build(input_file)
+        output.line()
+
+    def run_build(self, input_file):
+        output = self._output
+        output.line('dploy preparing to receive app for build')
         try:
             for line in input_file:
                 self._receive_processor.process(line)
         except:
-            output.line('An error during the build process')
-            output.line()
-            sys.exit(1)
-        output.line('dploy completed task successfully!')
-        output.line()
+            output.line("An error during the app's build process")
+        else:
+            output.line('dploy completed task successfully!')
+
+    def repository_ok(self):
+        """Ignores repositories based on configuration"""
+        # This is most useful for ignoring gitolite-admin so it doesn't get
+        # built
+        raw_ignore_list = self._config.get(constants.CONFIG_SECTION,
+                'repo-ignore-list')
+        ignore_list = raw_ignore_list.splitlines()
+        if self._git_repository.name in ignore_list:
+            self._output.line('dploy ignoring repository "%s"')
+            return False
+        return True

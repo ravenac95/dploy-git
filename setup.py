@@ -19,6 +19,7 @@ setup(name='dploy-git',
     zip_safe=False,
     install_requires=[
         'subwrap',
+        'pyzmq',
     ],
     entry_points={},
     classifiers=[

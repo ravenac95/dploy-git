@@ -82,7 +82,8 @@ class DployPreReceiveHook(GitoliteHook):
         raw_ignore_list = self._config.get(constants.CONFIG_SECTION,
                 'repo-ignore-list')
         ignore_list = raw_ignore_list.splitlines()
-        if self._git_repository.name in ignore_list:
-            self._output.line('dploy ignoring repository "%s"')
+        repository_name = self._git_repository.name
+        if repository_name in ignore_list:
+            self._output.line('dploy ignoring repository "%s"' % repository_name)
             return False
         return True

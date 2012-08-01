@@ -32,6 +32,7 @@ class HookOutputStream(object):
             self._output_stream.write(prefix)
         string = string.replace('\n', NEWLINE_REPLACE)
         self._output_stream.write(string)
+        self._output_stream.flush()
         self._on_new_line = False
 
     def new_line(self):

@@ -1,6 +1,39 @@
 from .utils import make_temp_file_path
 
 
+class DeployRequest(object):
+    @classmethod
+    def from_dict(cls, data):
+        app = data['app']
+        archive_uri = data['archive_uri']
+        commit = data['commit']
+        update_message = data['update_message']
+        metadata_version = data['metadata_version']
+        return cls(app, archive_uri, commit, update_message, metadata_version)
+
+    @classmethod
+    def from_update(cls, update, archive_uri, update_message):
+        app = update.repository.name
+        commit = update.new
+        return cls(app, archive_uri, commit, update_message, 0)
+
+    def __init__(self, app, archive_uri, commit, update_message,
+            metadata_version):
+        self.app = app
+        self.archive_uri = archive_uri
+        self.commit = commit
+        self.update_message = update_message
+        self.metadata_version = metadata_version
+
+    def to_dict(self):
+        return dict(app=self.app,
+                archive_uri=self.archive_uri,
+                commit=self.commit,
+                update_message=self.update_message,
+                metadata_version=self.metadata_version,
+                )
+
+
 class GitUpdate(object):
     @classmethod
     def from_line(cls, line, repository):
@@ -66,15 +99,21 @@ class PreReceiveProcessor(object):
             output.line('Receiving new code from master branch')
             # Export the file to a temporary file
             update_file = update.export_to_file()
+            # Create a DeployRequest
+            update_message = '[USER] received new code commit hash "%s"' % \
+                    update.new
+            deploy_request = DeployRequest.from_update(update, update_file,
+                    update_message)
+            # Prepare the broadcast listener
+            self._broadcast_listener.prepare()
             # Queue the DeployRequest
             # Should receive a listening channel in the response
             response = self._build_queue_client.send_deploy_request(
-                    self._git_repository, update_file)
+                    deploy_request)
             # Wait and listen to the broadcaster using the received
             # listening channel
             self._broadcast_listener.listen_from_response(response)
             # Remove the temp_directory
-
 
         else:
             output.line('Ignoring branch "%s"' % branch)

@@ -67,13 +67,17 @@ class DployPreReceiveHook(GitoliteHook):
     def run_build(self, input_file):
         output = self._output
         output.line('dploy preparing to receive app for build')
+        exit_code = 0
         try:
             for line in input_file:
                 self._receive_processor.process(line)
         except:
             output.line("An error during the app's build process")
+            exit_code = 1
+            raise
         else:
             output.line('dploy completed task successfully!')
+        sys.exit(exit_code)
 
     def repository_ok(self):
         """Ignores repositories based on configuration"""

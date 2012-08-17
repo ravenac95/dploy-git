@@ -39,13 +39,15 @@ class DployPreReceiveHook(GitoliteHook):
                 'build-queue-uri')
         broadcast_listen_uri = self._config.get(constants.CONFIG_SECTION,
                 'broadcast-listen-uri')
+        git_service_uri = self._config.get(constants.CONFIG_SECTION,
+                'git-service-uri')
 
         self._build_queue_client = BuildQueueClient(queue_uri)
         self._broadcast_listener = BroadcastListener(broadcast_listen_uri,
                 self._output)
         self._receive_processor = PreReceiveProcessor(self._build_queue_client,
                 self._broadcast_listener, self._git_repository,
-                self._output)
+                self._output, git_service_uri)
 
     def __init__(self, git_repository, env, config, output,
             build_queue_client=None,
@@ -88,6 +90,7 @@ class DployPreReceiveHook(GitoliteHook):
         ignore_list = raw_ignore_list.splitlines()
         repository_name = self._git_repository.name
         if repository_name in ignore_list:
-            self._output.line('dploy ignoring repository "%s"' % repository_name)
+            self._output.line('dploy ignoring repository "%s"' %
+                    repository_name)
             return False
         return True

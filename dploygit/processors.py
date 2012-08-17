@@ -1,3 +1,6 @@
+import requests
+import json
+from urlparse import urljoin
 from .utils import make_temp_file_path
 
 
@@ -81,13 +84,27 @@ class GitUpdate(object):
         self.repository.export_to_file(file_path, commit=self.new)
         return file_path
 
+    def pack_file(self, git_service_url):
+        pack_request_data = dict(commit=self.new)
+        headers = {'content-type': 'application/json'}
+
+        pack_endpoint = "%s/pack" % self.repository.name
+
+        pack_url = urljoin(git_service_url, pack_endpoint)
+        print pack_url
+        response = requests.post(pack_url,
+                data=json.dumps(pack_request_data),
+                headers=headers)
+        return response.json['uri']
+
 
 class PreReceiveProcessor(object):
     def __init__(self, build_queue_client, broadcast_listener, git_repository,
-            output):
+            output, git_service_uri):
         self._build_queue_client = build_queue_client
         self._broadcast_listener = broadcast_listener
         self._git_repository = git_repository
+        self._git_service_uri = git_service_uri
         self._output = output
 
     def process(self, line):
@@ -97,23 +114,14 @@ class PreReceiveProcessor(object):
         branch = update.branch
         if branch == 'master':
             output.line('Receiving new code from master branch')
+
             # Export the file to a temporary file
-            update_file = update.export_to_file()
+            update_file = update.pack_file(self._git_service_uri)
+
             # Create a DeployRequest
             update_message = '[USER] received new code commit hash "%s"' % \
                     update.new
-            deploy_request = DeployRequest.from_update(update, update_file,
-                    update_message)
-            # Prepare the broadcast listener
-            self._broadcast_listener.prepare()
-            # Queue the DeployRequest
-            # Should receive a listening channel in the response
-            response = self._build_queue_client.send_deploy_request(
-                    deploy_request)
-            # Wait and listen to the broadcaster using the received
-            # listening channel
-            self._broadcast_listener.listen_from_response(response)
-            # Remove the temp_directory
-
+            print "Update File: %s" % update_file
+            print "Update Message: %s" % update_message
         else:
             output.line('Ignoring branch "%s"' % branch)

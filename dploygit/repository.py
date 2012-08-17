@@ -26,8 +26,11 @@ class GitRepository(object):
 
         The export format is determined by the destination's file extension
         """
+        git_dir_arg = '--git-dir=%s' % self.directory
         prefix_arg = '--prefix=%s/' % self.name
         output_arg = '--output=%s' % destination
-        command = ['git', 'archive', prefix_arg, output_arg, commit]
+        command = ['git', git_dir_arg, 'archive', prefix_arg,
+                output_arg, commit]
+        print command
         # FIXME handle when the program returns an error
         subwrap.run(command)

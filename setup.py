@@ -20,8 +20,15 @@ setup(name='dploy-git',
     install_requires=[
         'subwrap',
         'pyzmq',
+        'flask',
+        'flask-command',
+        'requests',
     ],
-    entry_points={},
+    entry_points={
+        'console_scripts': [
+            'dploy-git-server = dploygit.server:run',
+        ]
+    },
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Intended Audience :: Developers',

@@ -1,6 +1,9 @@
 requirements:
   - subwrap
   - pyzmq
+  - flask
+  - flask-command
+  - requests
 
 ---
 profile: development

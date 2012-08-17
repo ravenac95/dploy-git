@@ -58,7 +58,7 @@ class TestDployPreReceiveHook(object):
         mock_input_file.__iter__.return_value = iter(['a', 'b', 'c'])
 
         # Run Test
-        self.hook.run_build(mock_input_file)
+        exit_code = self.hook.run_build(mock_input_file)
 
         # Assertions
         expected_calls = [
@@ -67,6 +67,7 @@ class TestDployPreReceiveHook(object):
             call('c'),
         ]
         self.mock_receive_processor.process.assert_has_calls(expected_calls)
+        assert exit_code == 0
 
     def test_run(self):
         # Setup mocks

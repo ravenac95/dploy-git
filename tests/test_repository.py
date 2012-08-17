@@ -30,5 +30,5 @@ class TestGitRepository(object):
         export_path = 'ep.tar.gz'
         self.repository.export_to_file(export_path)
         mock_run.assert_called_with([
-            'git', 'archive', '--prefix=name/',
+            'git', '--git-dir=dir', 'archive', '--prefix=name/',
             '--output=ep.tar.gz', 'HEAD'])

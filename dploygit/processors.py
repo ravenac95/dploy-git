@@ -84,7 +84,7 @@ class GitUpdate(object):
         self.repository.export_to_file(file_path, commit=self.new)
         return file_path
 
-    def pack_file(self, git_service_url):
+    def pack_repository(self, git_service_url):
         pack_request_data = dict(commit=self.new)
         headers = {'content-type': 'application/json'}
 
@@ -116,7 +116,7 @@ class PreReceiveProcessor(object):
             output.line('Receiving new code from master branch')
 
             # Export the file to a temporary file
-            update_file = update.pack_file(self._git_service_uri)
+            update_file = update.pack_repository(self._git_service_uri)
 
             # Create a DeployRequest
             update_message = '[USER] received new code commit hash "%s"' % \

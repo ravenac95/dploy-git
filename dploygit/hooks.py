@@ -79,7 +79,7 @@ class DployPreReceiveHook(GitoliteHook):
             raise
         else:
             output.line('dploy completed task successfully!')
-        sys.exit(exit_code)
+        return exit_code
 
     def repository_ok(self):
         """Ignores repositories based on configuration"""

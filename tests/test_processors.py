@@ -9,6 +9,7 @@ class TestPreReceiveProcessor(object):
         self.mock_broadcast_listener = Mock()
         self.mock_git_repo = Mock()
         self.mock_output = Mock()
+        self.fake_git_service_uri = "uri"
 
         # Setup Patches
         self.git_update_cls = patch('dploygit.processors.GitUpdate',
@@ -18,7 +19,7 @@ class TestPreReceiveProcessor(object):
         # Setup object under test
         self.processor = PreReceiveProcessor(self.mock_build_queue_client,
                 self.mock_broadcast_listener, self.mock_git_repo,
-                self.mock_output)
+                self.mock_output, self.fake_git_service_uri)
 
     def teardown(self):
         self.git_update_cls.stop()
@@ -35,11 +36,8 @@ class TestPreReceiveProcessor(object):
         # Assertions
         self.mock_git_update_cls.from_line.assert_called_with(mock_line,
                 self.mock_git_repo)
-        message = "GitUpdate.export_to_file not called"
-        assert mock_git_update.export_to_file.called == True, message
-        self.mock_build_queue_client.send_deploy_request.assert_called_with(
-                self.mock_git_repo,
-                mock_git_update.export_to_file.return_value)
+        mock_git_update.pack_repository.assert_called_with(
+                self.fake_git_service_uri)
 
     def test_pre_receive_processor_process_not_master(self):
         # Setup

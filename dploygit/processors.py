@@ -91,7 +91,6 @@ class GitUpdate(object):
         pack_endpoint = "%s/pack" % self.repository.name
 
         pack_url = urljoin(git_service_url, pack_endpoint)
-        print pack_url
         response = requests.post(pack_url,
                 data=json.dumps(pack_request_data),
                 headers=headers)
@@ -99,29 +98,41 @@ class GitUpdate(object):
 
 
 class PreReceiveProcessor(object):
-    def __init__(self, build_queue_client, broadcast_listener, git_repository,
-            output, git_service_uri):
+    def __init__(self, build_queue_client, broadcast_listener, git_repo,
+            git_service_uri, app_service_client, output):
         self._build_queue_client = build_queue_client
         self._broadcast_listener = broadcast_listener
-        self._git_repository = git_repository
+        self._git_repo = git_repo
         self._git_service_uri = git_service_uri
+        self._app_service_client = app_service_client
         self._output = output
 
     def process(self, line):
         output = self._output
 
-        update = GitUpdate.from_line(line, self._git_repository)
+        git_repo = self._git_repo
+        update = GitUpdate.from_line(line, git_repo)
         branch = update.branch
         if branch == 'master':
-            output.line('Receiving new code from master branch')
+            output.line('Receiving new code on master branch')
 
             # Export the file to a temporary file
-            update_file = update.pack_repository(self._git_service_uri)
+            archive_uri = update.pack_repository(self._git_service_uri)
 
             # Create a DeployRequest
             update_message = '[USER] received new code commit hash "%s"' % \
                     update.new
-            print "Update File: %s" % update_file
-            print "Update Message: %s" % update_message
+
+            # Start release
+            new_release = self._app_service_client.start_new_release(
+                    git_repo, update_message)
+            # FIXME
+            output.line(archive_uri)
+
+            output.line('release data')
+
+            output.line(new_release)
+            # Save new release
+            self._app_service_client.commit_release(git_repo, new_release)
         else:
             output.line('Ignoring branch "%s"' % branch)

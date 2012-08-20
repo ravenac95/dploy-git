@@ -24,6 +24,7 @@ class HookOutputStream(object):
         self.new_line()
 
     def write(self, string, use_prefix=True):
+        string = str(string)
         if self._on_new_line:
             self._output_stream.write(PRINT_PREFIX)
             prefix = self._prefix

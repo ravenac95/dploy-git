@@ -23,6 +23,7 @@ setup(name='dploy-git',
         'flask',
         'flask-command',
         'requests',
+        'boto',
     ],
     entry_points={
         'console_scripts': [

@@ -1,4 +1,5 @@
 import os
+import boto
 from flask import Flask, abort, current_app, g, request, jsonify
 from flaskcommand import flask_command
 from repository import GitRepository
@@ -14,16 +15,36 @@ def app_factory(config_path):
     return app
 
 
+class S3Backend(object):
+    def __init__(self, access_key, secret_key, bucket):
+        self._access_key = access_key
+        self._secret_key = secret_key
+        self._bucket = bucket
+
+    def upload(self, name, path):
+        """Uploads a file to S3 and returns the url used for uploading"""
+        # Create the connection
+        connection = boto.connect_s3(self._access_key, self._secret_key)
+        # Get the bucket
+        bucket = connection.get_bucket(self._bucket)
+        # Get the resource to the key
+        key = bucket.new_key(name)
+        # Upload the file
+        key.set_contents_from_filename(path)
+        # Generate an s3 url s3://bucket/key
+        s3_uri = "s3://%s/%s" % (self._bucket, name)
+        return s3_uri
+
+
 class DployGitManager(object):
-    def __init__(self, git_repos_path):
+    def __init__(self, git_repos_path, storage_backend):
         self._git_repos_path = git_repos_path
+        self._storage_backend = storage_backend
 
     def get_repository(self, repository_name):
         repository_git_name = '%s.git' % repository_name
-        print "REPO NAME %s" % repository_git_name
         repository_path = os.path.join(self._git_repos_path,
                 repository_git_name)
-        print "REPO PATH %s" % repository_path
         return GitRepository(repository_name, repository_path)
 
     def pack_repository(self, repository_name, pack_request):
@@ -31,7 +52,10 @@ class DployGitManager(object):
         repository = self.get_repository(repository_name)
         temp_path = make_temp_file_path(suffix='.tar.gz', prefix='dploy')
         repository.export_to_file(temp_path, commit=commit)
-        return temp_path
+        context = dict(name=repository_name, commit=commit)
+        key_name = "%(name)s/%(name)s-%(commit)s.tar.gz" % context
+        uri = self._storage_backend.upload(key_name, temp_path)
+        return uri
 
 
 class GitPackRequest(object):
@@ -51,7 +75,9 @@ class GitPackRequest(object):
 @app.before_request
 def load_git_manager():
     config = current_app.config
-    manager = DployGitManager(config['GIT_REPOS_PATH'])
+    storage_backend = S3Backend(config['AWS_ACCESS_KEY'],
+            config['AWS_SECRET_KEY'], config['S3_BUCKET'])
+    manager = DployGitManager(config['GIT_REPOS_PATH'], storage_backend)
     g.manager = manager
 
 

@@ -4,6 +4,7 @@ requirements:
   - flask
   - flask-command
   - requests
+  - boto
 
 ---
 profile: development
